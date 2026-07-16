@@ -1,0 +1,187 @@
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap');
+
+:root {
+    --yorha-bg: #d1cec5;
+    --yorha-text: #4e4b42;
+    --yorha-border: #a5a39b;
+    --yorha-accent: #b42c1f;
+    --yorha-light: #e6e4dc;
+}
+
+body {
+    background-color: var(--yorha-bg);
+    color: var(--yorha-text);
+    font-family: 'IBM Plex Mono', monospace;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-image: linear-gradient(0deg, transparent 24%, rgba(165, 163, 155, 0.1) 25%, rgba(165, 163, 155, 0.1) 26%, transparent 27%, transparent 74%, rgba(165, 163, 155, 0.1) 75%, rgba(165, 163, 155, 0.1) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(165, 163, 155, 0.1) 25%, rgba(165, 163, 155, 0.1) 26%, transparent 27%, transparent 74%, rgba(165, 163, 155, 0.1) 75%, rgba(165, 163, 155, 0.1) 76%, transparent 77%, transparent);
+    background-size: 50px 50px;
+}
+
+.glass-panel {
+    background: var(--yorha-bg);
+    border: 2px solid var(--yorha-border);
+    padding: 40px;
+    box-shadow: 10px 10px 0px rgba(78, 75, 66, 0.1);
+    width: 100%;
+    max-width: 900px;
+    position: relative;
+}
+
+.glass-panel::before {
+    content: "POD 042 // SYSTEM // CHESS_MODULE";
+    position: absolute;
+    top: -10px;
+    left: 20px;
+    background: var(--yorha-bg);
+    padding: 0 10px;
+    font-size: 12px;
+    color: var(--yorha-border);
+    font-weight: bold;
+}
+
+header {
+    text-align: left;
+    margin-bottom: 30px;
+    border-bottom: 1px solid var(--yorha-border);
+    padding-bottom: 10px;
+}
+
+h1 {
+    font-family: 'Chakra Petch', sans-serif;
+    font-weight: 600;
+    font-size: 2.5rem;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+header p {
+    margin: 5px 0 0 0;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+button {
+    background: var(--yorha-light);
+    color: var(--yorha-text);
+    border: 1px solid var(--yorha-border);
+    padding: 10px 20px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+button::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: -3px;
+    width: 100%;
+    height: 100%;
+    border: 1px solid var(--yorha-border);
+    z-index: -1;
+    transition: all 0.2s ease;
+}
+
+button:hover {
+    background: var(--yorha-text);
+    color: var(--yorha-bg);
+}
+
+button:hover::after {
+    bottom: 0;
+    left: 0;
+}
+
+button.active {
+    background: var(--yorha-text);
+    color: var(--yorha-bg);
+    border-color: var(--yorha-text);
+}
+
+.main-content {
+    display: flex;
+    gap: 30px;
+}
+
+#board {
+    width: 500px;
+    border: 2px solid var(--yorha-border);
+    padding: 5px;
+    background: var(--yorha-light);
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1;
+}
+
+.status-box, .stats-box {
+    background: var(--yorha-light);
+    border: 1px solid var(--yorha-border);
+    padding: 20px;
+    position: relative;
+}
+
+.status-box::before, .stats-box::before {
+    content: "";
+    position: absolute;
+    top: 5px;
+    left: -6px;
+    width: 10px;
+    height: 10px;
+    background: var(--yorha-accent);
+}
+
+h3 {
+    margin: 0 0 15px 0;
+    font-family: 'Chakra Petch', sans-serif;
+    text-transform: uppercase;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--yorha-border);
+    padding-bottom: 5px;
+}
+
+.move-highlight {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--yorha-text);
+    margin: 10px 0;
+}
+
+.eval-text {
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+}
+
+.small-text {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin-top: 10px;
+}
+
+#btn-reset {
+    margin-top: auto;
+}
+
+/* Customizing the Chessboard.js styling to match YoRHa */
+.white-1e1d7 { background-color: #d1cec5; }
+.black-3c85d { background-color: #8c897f; }

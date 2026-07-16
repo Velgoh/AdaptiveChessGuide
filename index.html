@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>YoRHa Chess Module</title>
+    <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="glass-panel">
+        <header>
+            <h1>CHESS_MODULE</h1>
+            <p>TACTICAL SANDBOX // ADAPTIVE ELO TRACKING</p>
+        </header>
+
+        <div class="controls">
+            <button id="btn-white" class="active">Playing as White</button>
+            <button id="btn-black">Playing as Black</button>
+        </div>
+
+        <div class="main-content">
+            <div id="board"></div>
+            
+            <div class="sidebar">
+                <div class="status-box">
+                    <h3>Recommended Move</h3>
+                    <div id="best-move" class="move-highlight">Loading Engine...</div>
+                    <p id="eval-display" class="eval-text">Eval: 0.0</p>
+                    <button id="btn-play-move" class="btn-action" style="display: none;">Play Move on Web</button>
+                </div>
+
+                <div class="stats-box">
+                    <h3>Engine Status</h3>
+                    <p>Current Elo: <span id="current-elo">1500</span></p>
+                    <p class="small-text">Adapts automatically to opponent's precision.</p>
+                </div>
+                
+                <button id="btn-reset" class="btn-secondary">Reset Board</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
