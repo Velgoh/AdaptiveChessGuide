@@ -13,6 +13,7 @@ const config = {
     dropOffBoard: 'trash',
     sparePieces: true,
     position: 'start',
+    moveSpeed: 1,
     pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png',
     onChange: onBoardChange
 };
@@ -94,14 +95,13 @@ fetch('https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js')
                     $('#board-analysis').text(texts.analysis);
                     $('#opponent-hint').text(texts.hint);
                     
-                    // Add visual highlights (path)
+                    // Add visual highlights (path) using persistent CSS injection
                     const from = bestMove.substring(0, 2);
                     const to = bestMove.substring(2, 4);
-                    $('.highlight-best-move').removeClass('highlight-best-move');
-                    $('.square-' + from).addClass('highlight-best-move');
-                    $('.square-' + to).addClass('highlight-best-move');
+                    $('#dynamic-highlight').remove();
+                    $('head').append(`<style id="dynamic-highlight">.square-${from}, .square-${to} { background-color: rgba(200, 200, 50, 0.5) !important; }</style>`);
                     
-                    setTimeout(() => { executeMove(bestMove); }, 10); // Instant Autoplay move but path persists
+                    executeMove(bestMove); // Instant Autoplay move with ZERO delay
                 } else {
                     $('#best-move').text('Game Over');
                     $('#board-analysis').text('Game Over');
@@ -221,12 +221,5 @@ function executeMove(move) {
         } else {
             board.move(from + '-' + to);
         }
-        
-        // Re-apply the highlights since updating the board DOM removes them
-        setTimeout(() => {
-            $('.highlight-best-move').removeClass('highlight-best-move');
-            $('.square-' + from).addClass('highlight-best-move');
-            $('.square-' + to).addClass('highlight-best-move');
-        }, 300); // Wait for chessboard.js 200ms animation to complete
     }
 }
