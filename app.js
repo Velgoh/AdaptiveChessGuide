@@ -13,16 +13,24 @@ let opponentMoveCount = 0;
 // Initialize Chessboard
 const config = {
     draggable: true,
+    dropOffBoard: 'trash',
+    sparePieces: true,
     position: 'start',
     moveSpeed: 1,
     pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png',
-    onDrop: function(source, target) {
+    onDrop: function(source, target, piece, newPos, oldPos, orientation) {
         let move = game.move({
             from: source,
             to: target,
             promotion: 'q'
         });
-        if (move === null) return 'snapback';
+        
+        if (move === null) {
+            // Illegal move (Sandbox adjustment)
+            // Force chess.js to adopt the arbitrary position, setting turn to playingAs to trigger AI
+            const newFen = Chessboard.objToFen(newPos);
+            game.load(newFen + ` ${playingAs} - - 0 1`);
+        }
     },
     onSnapEnd: function() {
         board.position(game.fen(), false);
