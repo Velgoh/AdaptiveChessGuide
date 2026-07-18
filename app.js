@@ -101,7 +101,7 @@ fetch('https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js')
                     $('.square-' + from).addClass('highlight-best-move');
                     $('.square-' + to).addClass('highlight-best-move');
                     
-                    setTimeout(() => { executeMove(bestMove); }, 1500); // Delayed Autoplay move so path is visible
+                    setTimeout(() => { executeMove(bestMove); }, 10); // Instant Autoplay move but path persists
                 } else {
                     $('#best-move').text('Game Over');
                     $('#board-analysis').text('Game Over');
