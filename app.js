@@ -94,14 +94,12 @@ fetch('https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js')
                     $('#board-analysis').text(texts.analysis);
                     $('#opponent-hint').text(texts.hint);
                     
-                    // Add visual highlights (path)
+                    // Add visual highlights (path) - REMOVED PER USER REQUEST
                     const from = bestMove.substring(0, 2);
                     const to = bestMove.substring(2, 4);
                     $('.highlight-best-move').removeClass('highlight-best-move');
-                    $('.square-' + from).addClass('highlight-best-move');
-                    $('.square-' + to).addClass('highlight-best-move');
                     
-                    setTimeout(() => { executeMove(bestMove); }, 1500); // Autoplay move
+                    setTimeout(() => { executeMove(bestMove); }, 10); // Instant Autoplay move
                 } else {
                     $('#best-move').text('Game Over');
                     $('#board-analysis').text('Game Over');
