@@ -224,8 +224,9 @@ function executeMove(move) {
         
         // Re-apply the highlights since updating the board DOM removes them
         setTimeout(() => {
+            $('.highlight-best-move').removeClass('highlight-best-move');
             $('.square-' + from).addClass('highlight-best-move');
             $('.square-' + to).addClass('highlight-best-move');
-        }, 50);
+        }, 300); // Wait for chessboard.js 200ms animation to complete
     }
 }
