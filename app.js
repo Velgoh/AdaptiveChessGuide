@@ -66,6 +66,7 @@ fetch('https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js')
                 const match = line.match(/score mate (-?\d+)/);
                 if (match) {
                     $('#eval-display').text(`Eval: M${match[1]}`);
+                    latestEvalCp = parseInt(match[1]) > 0 ? 99 : -99;
                 }
             }
             
@@ -74,12 +75,18 @@ fetch('https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js')
                 if (!isSearching) return; // Ignore aborted searches
                 
                 // Run adaptive logic exactly once per turn using the final stabilized evaluation
-                if (lastEval !== 0 && latestEvalCp !== 0) {
-                    const delta = latestEvalCp - lastEval;
-                    if (delta > 0.5) {
-                        currentElo = Math.max(1350, currentElo - 200);
-                    } else if (delta < -0.2) {
-                        currentElo = Math.min(3190, currentElo + 150);
+                // Target a close game for the user without making fatal blunders
+                if (latestEvalCp !== 0) {
+                    if (latestEvalCp < -0.5) {
+                        // User is losing. Engine goes full terminator mode to save the game!
+                        currentElo = 3190;
+                    } else if (latestEvalCp < 1.0) {
+                        // Close game. Play strong to maintain advantage.
+                        currentElo = Math.min(3190, currentElo + 200);
+                    } else if (latestEvalCp > 2.5) {
+                        // User is crushing. Lower strength to give opponent a chance.
+                        // Floor is 2000 so the engine doesn't start hanging full pieces!
+                        currentElo = Math.max(2000, currentElo - 250);
                     }
                     updateEloDisplay();
                     setEngineStrength();
