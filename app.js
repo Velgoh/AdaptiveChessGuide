@@ -9,6 +9,7 @@ let stockfish = null;
 let isSearching = false;
 let opponentErrorSum = 0;
 let opponentMoveCount = 0;
+let isAiPaused = false;
 
 // Initialize Chessboard
 const config = {
@@ -56,6 +57,21 @@ $('#btn-black').on('click', () => {
     onBoardChange();
 });
 
+$('#btn-pause-ai').on('click', () => {
+    isAiPaused = !isAiPaused;
+    if (isAiPaused) {
+        $('#btn-pause-ai').text('Resume AI');
+        $('#btn-pause-ai').addClass('active');
+        $('#best-move').text('AI Paused (Sandbox Mode)');
+        if (stockfish) stockfish.postMessage('stop');
+        isSearching = false;
+    } else {
+        $('#btn-pause-ai').text('Pause AI');
+        $('#btn-pause-ai').removeClass('active');
+        onBoardChange(); // Trigger AI again
+    }
+});
+
 $('#btn-reset').on('click', () => {
     game.reset();
     board.position('start');
@@ -64,6 +80,8 @@ $('#btn-reset').on('click', () => {
     latestEvalCp = 0;
     opponentErrorSum = 0;
     opponentMoveCount = 0;
+    isAiPaused = false;
+    $('#btn-pause-ai').text('Pause AI').removeClass('active');
     updateEloDisplay();
     $('#best-move').text('Waiting for opponent...');
     $('#board-analysis').text('Analyzing position...');
@@ -178,6 +196,11 @@ function onBoardChange() {
         $('.highlight-best-move').removeClass('highlight-best-move');
         $('#btn-play-move').hide();
         currentBestMove = '';
+        return;
+    }
+    
+    if (isAiPaused) {
+        $('#best-move').text('AI Paused (Sandbox Mode)');
         return;
     }
 
