@@ -6,6 +6,8 @@ let currentBestMove = '';
 let latestEvalCp = 0;
 let stockfish = null;
 let isSearching = false;
+let opponentErrorSum = 0;
+let opponentMoveCount = 0;
 
 // Initialize Chessboard
 const config = {
@@ -75,13 +77,26 @@ fetch('https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js')
                 if (!isSearching) return; // Ignore aborted searches
                 
                 // Run adaptive logic exactly once per turn using the final stabilized evaluation
+                // Adaptive ACPL Algorithm: Guess opponent's Elo and play slightly stronger (+150)
                 if (lastEval !== 0 && latestEvalCp !== 0) {
-                    const delta = latestEvalCp - lastEval;
-                    if (delta > 0.5) {
-                        currentElo = Math.max(1350, currentElo - 200);
-                    } else if (delta < -0.2) {
-                        currentElo = Math.min(3190, currentElo + 150);
-                    }
+                    let moveError = latestEvalCp - lastEval;
+                    moveError = Math.max(0, moveError); // Clamp horizon effects
+                    
+                    opponentErrorSum += moveError;
+                    opponentMoveCount++;
+                    
+                    let acpl = (opponentErrorSum / opponentMoveCount) * 100;
+                    
+                    // Estimate enemy Elo based on their average blunder rate
+                    let estimatedEnemyElo = Math.floor(3000 - (acpl * 15));
+                    
+                    // Set our AI to be slightly stronger than the enemy so the user can win a close game
+                    let targetElo = estimatedEnemyElo + 150;
+                    targetElo = Math.max(1350, Math.min(3190, targetElo));
+                    
+                    // Smoothly adapt current Elo towards the target
+                    currentElo = Math.floor((currentElo + targetElo) / 2);
+                    
                     updateEloDisplay();
                     setEngineStrength();
                 }
