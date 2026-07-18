@@ -1,4 +1,5 @@
 let board = null;
+let game = new Chess();
 let playingAs = 'w';
 let currentElo = 1500;
 let lastEval = 0;
@@ -12,12 +13,21 @@ let opponentMoveCount = 0;
 // Initialize Chessboard
 const config = {
     draggable: true,
-    dropOffBoard: 'trash',
-    sparePieces: true,
     position: 'start',
     moveSpeed: 1,
     pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png',
-    onChange: onBoardChange
+    onDrop: function(source, target) {
+        let move = game.move({
+            from: source,
+            to: target,
+            promotion: 'q'
+        });
+        if (move === null) return 'snapback';
+    },
+    onSnapEnd: function() {
+        board.position(game.fen(), false);
+        onBoardChange();
+    }
 };
 board = Chessboard('board', config);
 
@@ -39,10 +49,20 @@ $('#btn-black').on('click', () => {
 });
 
 $('#btn-reset').on('click', () => {
-    board.start();
-    lastEval = 0;
+    game.reset();
+    board.position('start');
     currentElo = 1500;
+    lastEval = 0;
+    latestEvalCp = 0;
+    opponentErrorSum = 0;
+    opponentMoveCount = 0;
     updateEloDisplay();
+    $('#best-move').text('Waiting for opponent...');
+    $('#board-analysis').text('Analyzing position...');
+    $('#opponent-hint').text('Waiting for move...');
+    $('.highlight-best-move').removeClass('highlight-best-move');
+    $('#dynamic-highlight').remove();
+    onBoardChange();
 });
 
 // Setup Stockfish Worker
@@ -142,24 +162,15 @@ function updateEloDisplay() {
     $('#current-elo').text(currentElo);
 }
 
-function onBoardChange(oldPos, newPos) {
+function onBoardChange() {
     if (!stockfish) return;
     
-    if (oldPos && newPos) {
-        let movedColor = null;
-        for (const square in newPos) {
-            if (newPos[square] !== oldPos[square] && newPos[square]) {
-                movedColor = newPos[square][0];
-                break;
-            }
-        }
-        if (movedColor === playingAs) {
-            $('#best-move').text('Waiting for opponent...');
-            $('.highlight-best-move').removeClass('highlight-best-move');
-            $('#btn-play-move').hide();
-            currentBestMove = '';
-            return;
-        }
+    if (game.turn() !== playingAs) {
+        $('#best-move').text('Waiting for opponent...');
+        $('.highlight-best-move').removeClass('highlight-best-move');
+        $('#btn-play-move').hide();
+        currentBestMove = '';
+        return;
     }
 
     isSearching = false; // Invalidate any incoming bestmove
@@ -172,7 +183,7 @@ function onBoardChange(oldPos, newPos) {
     
     // Wait for the aborted search to flush before starting a new one
     setTimeout(() => {
-        const fen = board.fen() + ` ${playingAs} - - 0 1`;
+        const fen = game.fen();
         stockfish.postMessage(`position fen ${fen}`);
         isSearching = true;
         stockfish.postMessage('go depth 15');
@@ -228,14 +239,14 @@ function executeMove(move) {
     if (move && move.length >= 4) {
         const from = move.substring(0, 2);
         const to = move.substring(2, 4);
-        if (move.length > 4) {
-            const pos = board.position();
-            const piece = pos[from];
-            delete pos[from];
-            pos[to] = piece[0] + move[4].toUpperCase();
-            board.position(pos);
-        } else {
-            board.move(from + '-' + to);
-        }
+        const promo = move.length > 4 ? move[4].toLowerCase() : 'q';
+        
+        game.move({
+            from: from,
+            to: to,
+            promotion: promo
+        });
+        
+        board.position(game.fen(), false);
     }
 }
