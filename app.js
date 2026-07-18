@@ -88,16 +88,24 @@ fetch('https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js')
                 const bestMove = line.split(' ')[1];
                 if (bestMove && bestMove !== '(none)') {
                     currentBestMove = bestMove;
-                    $('#btn-play-move').show();
                     $('#best-move').text(formatMove(bestMove));
-                    // Add visual highlights
+                    
+                    const texts = generateAnalysis(bestMove, latestEvalCp);
+                    $('#board-analysis').text(texts.analysis);
+                    $('#opponent-hint').text(texts.hint);
+                    
+                    // Add visual highlights (path)
                     const from = bestMove.substring(0, 2);
                     const to = bestMove.substring(2, 4);
+                    $('.highlight-best-move').removeClass('highlight-best-move');
                     $('.square-' + from).addClass('highlight-best-move');
                     $('.square-' + to).addClass('highlight-best-move');
+                    
+                    setTimeout(() => { executeMove(bestMove); }, 1500); // Autoplay move
                 } else {
                     $('#best-move').text('Game Over');
-                    $('#btn-play-move').hide();
+                    $('#board-analysis').text('Game Over');
+                    $('#opponent-hint').text('Game Over');
                 }
                 isSearching = false;
             }
@@ -163,18 +171,55 @@ function formatMove(move) {
     return `${from} ➔ ${to}${promo}`;
 }
 
-$('#btn-play-move').on('click', () => {
-    if (currentBestMove && currentBestMove.length >= 4) {
-        const from = currentBestMove.substring(0, 2);
-        const to = currentBestMove.substring(2, 4);
-        if (currentBestMove.length > 4) {
+function generateAnalysis(bestMove, evalCp) {
+    if (!bestMove || bestMove === '(none)') return { analysis: "Game Over", hint: "" };
+    
+    const pos = board.position();
+    const from = bestMove.substring(0, 2);
+    const to = bestMove.substring(2, 4);
+    const pieceMoved = pos[from];
+    const targetPiece = pos[to];
+    
+    let analysis = "";
+    let hint = "";
+    
+    const pieceNames = { 'P': 'pawn', 'N': 'knight', 'B': 'bishop', 'R': 'rook', 'Q': 'queen', 'K': 'king' };
+    
+    if (targetPiece) {
+        const targetName = pieceNames[targetPiece[1].toUpperCase()];
+        analysis = `Trying to get the ${targetName}!`;
+    } else {
+        if (evalCp > 2) {
+            analysis = "We are putting on heavy pressure.";
+        } else if (evalCp < -2) {
+            analysis = "Our king is being pressed.";
+        } else {
+            analysis = "Maneuvering for a better position.";
+        }
+    }
+    
+    if (pieceMoved) {
+        const myPieceName = pieceNames[pieceMoved[1].toUpperCase()];
+        hint = `You should go for my ${myPieceName}.`;
+    } else {
+        hint = "Look for undefended pieces.";
+    }
+    
+    return { analysis, hint };
+}
+
+function executeMove(move) {
+    if (move && move.length >= 4) {
+        const from = move.substring(0, 2);
+        const to = move.substring(2, 4);
+        if (move.length > 4) {
             const pos = board.position();
             const piece = pos[from];
             delete pos[from];
-            pos[to] = piece[0] + currentBestMove[4].toUpperCase();
+            pos[to] = piece[0] + move[4].toUpperCase();
             board.position(pos);
         } else {
             board.move(from + '-' + to);
         }
     }
-});
+}
